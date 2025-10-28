@@ -111,8 +111,6 @@ class FundingService {
    * Get funding rate comparison for all symbols
    */
   async getFundingRateComparisons(symbols: string[]): Promise<SymbolFundingComparison[]> {
-    const comparisons: SymbolFundingComparison[] = [];
-
     // Fetch all data in parallel for better performance
     const symbolDataPromises = symbols.map(async (symbol) => {
       const [hyperliquid, binance, price] = await Promise.all([

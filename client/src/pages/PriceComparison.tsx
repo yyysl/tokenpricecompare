@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { hyperApi } from '../services/hyperApi';
 import { priceStreamService, type PriceComparison as PriceComparisonData } from '../services/priceStreamService';
-import type { Symbol } from '../types/trading';
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 
@@ -13,7 +12,6 @@ interface DurationTracker {
 const PINNED_THRESHOLD = 0.5; // Threshold for pinned section (in percentage)
 
 const PriceComparison: React.FC = () => {
-  const [symbols, setSymbols] = useState<Symbol[]>([]);
   const [priceComparisons, setPriceComparisons] = useState<PriceComparisonData[]>([]);
   const [commonSymbols, setCommonSymbols] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +89,6 @@ const PriceComparison: React.FC = () => {
         setIsLoading(true);
         const syms = await hyperApi.getSymbols();
         console.log('Loaded symbols:', syms.length);
-        setSymbols(syms);
         
         const common = await priceStreamService.initialize(syms);
         console.log('Common symbols:', common.length);

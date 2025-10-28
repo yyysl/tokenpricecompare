@@ -2,11 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { hyperApi } from '../services/hyperApi';
 import { fundingService } from '../services/fundingService';
 import type { SymbolFundingComparison, PositionEstimate } from '../types/funding';
-import type { Symbol } from '../types/trading';
-import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 
 const FundingComparison: React.FC = () => {
-  const [symbols, setSymbols] = useState<Symbol[]>([]);
   const [fundingComparisons, setFundingComparisons] = useState<SymbolFundingComparison[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [positionInputs, setPositionInputs] = useState<Record<string, number>>({});
@@ -63,7 +60,6 @@ const FundingComparison: React.FC = () => {
     try {
       setIsLoading(true);
       const syms = await hyperApi.getSymbols();
-      setSymbols(syms);
       
       const symbolNames = syms.map(s => s.name);
       const comparisons = await fundingService.getFundingRateComparisons(symbolNames);
@@ -113,13 +109,6 @@ const FundingComparison: React.FC = () => {
 
   const formatNumber = (num: number, decimals: number = 2) => {
     return num.toFixed(decimals);
-  };
-
-  const formatLargeNumber = (num: number) => {
-    if (Math.abs(num) >= 1000) {
-      return `$${(num / 1000).toFixed(2)}k`;
-    }
-    return `$${formatNumber(num, 2)}`;
   };
 
   return (
