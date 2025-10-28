@@ -44,3 +44,4 @@ coverage/
 .temp/
 *.log
 
+client/.env.local

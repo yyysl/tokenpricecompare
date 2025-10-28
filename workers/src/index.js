@@ -91,7 +91,6 @@ export default {
 async function checkAndAlert(priceComparisons, env) {
   const botToken = env.TELEGRAM_BOT_TOKEN;
   const chatId = env.TELEGRAM_CHAT_ID;
-  const alertThreshold = 1.0; // 1%
 
   if (!botToken || !chatId) {
     console.warn('Telegram bot token or chat ID not configured');
@@ -112,8 +111,8 @@ async function checkAndAlert(priceComparisons, env) {
     const absDiffPercent = Math.abs(priceDiffPercent);
     const symbolKey = symbol.toLowerCase();
 
-    // Check if price diff exceeds threshold (1%)
-    if (absDiffPercent >= alertThreshold) {
+    // Frontend already filtered by threshold, so send all data received
+    if (true) {
       // Use provided durationMs or calculate
       let durationMsToUse = durationMs || 0;
       
@@ -147,8 +146,7 @@ async function checkAndAlert(priceComparisons, env) {
         `币安: $${binancePrice.toFixed(2)}\n` +
         `价差: ${diffSign}$${Math.abs(priceDiff).toFixed(2)}\n` +
         `价差百分比: ${diffSign}${absDiffPercent.toFixed(4)}%\n` +
-        `持续时间: ${durationText}\n\n` +
-        `⚠️ 价差已超过 ${alertThreshold}%！`;
+        `持续时间: ${durationText}`;
 
       alerts.push({ symbol, message });
     }
