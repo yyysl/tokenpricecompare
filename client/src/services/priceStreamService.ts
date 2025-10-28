@@ -356,7 +356,8 @@ class PriceStreamService {
       this.binanceWs = new WebSocket(wsUrl);
 
       this.binanceWs.onopen = () => {
-        console.log(`Binance WebSocket connected for ${binanceSymbols.length} symbols`);
+        console.log(`✅ Binance WebSocket connected for ${binanceSymbols.length} symbols`);
+        console.log('Binance symbols subscribed:', binanceSymbols.slice(0, 20));
       };
 
       this.binanceWs.onmessage = (event) => {
@@ -373,6 +374,7 @@ class PriceStreamService {
               const price = parseFloat(streamData.p || streamData.markPrice || '0');
               
               if (price > 0) {
+                console.log(`📊 Binance price update: ${matchingSymbol} = $${price}`);
                 this.prices.set(`${matchingSymbol}_binance`, {
                   symbol: matchingSymbol,
                   price,
@@ -384,12 +386,13 @@ class PriceStreamService {
             }
           }
         } catch (error) {
-          console.error('Error parsing Binance WebSocket message:', error);
+          console.error('❌ Error parsing Binance WebSocket message:', error);
         }
       };
 
       this.binanceWs.onerror = (error) => {
-        console.error('Binance WebSocket error:', error);
+        console.error('❌ Binance WebSocket error:', error);
+        console.log('🔄 Falling back to Binance polling...');
         // Fall back to polling
         this.pollBinancePrices();
       };
@@ -430,7 +433,12 @@ class PriceStreamService {
       this.binanceAvailableSymbols.has(s.toUpperCase())
     );
     
-    if (binanceSymbols.length === 0) return;
+    if (binanceSymbols.length === 0) {
+      console.warn('⚠️ No Binance symbols to poll');
+      return;
+    }
+    
+    console.log(`🔄 Polling Binance prices for ${binanceSymbols.length} symbols...`);
     
     // Poll in batches to avoid rate limits
     const batchSize = 20;
@@ -448,6 +456,7 @@ class PriceStreamService {
           const price = parseFloat(data.markPrice || data.lastPrice || '0');
           
           if (price > 0 && !data.code) {
+            console.log(`📊 Binance polling price: ${symbol} = $${price}`);
             this.prices.set(`${symbol}_binance`, {
               symbol,
               price,
@@ -455,6 +464,8 @@ class PriceStreamService {
               exchange: 'binance'
             });
             this.notifySubscribers();
+          } else if (data.code) {
+            console.error(`❌ Binance API error for ${symbol}:`, data.msg || data.code);
           }
         } catch (error) {
           // Silent fail for individual symbol errors
