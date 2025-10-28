@@ -1,0 +1,33 @@
+{
+  "name": "trade-on-hyper",
+  "version": "1.0.0",
+  "description": "A modern trading platform with real-time market data and advanced analytics",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "test": "cd client && npm test",
+    "lint": "cd client && npm run lint"
+  },
+  "keywords": [
+    "trading",
+    "finance",
+    "cryptocurrency",
+    "stock-market",
+    "real-time",
+    "analytics"
+  ],
+  "author": "LinoYeung",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linoyeung/trade-on-hyper.git"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
