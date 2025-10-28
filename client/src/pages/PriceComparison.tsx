@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { hyperApi } from '../services/hyperApi';
 import { priceStreamService, type PriceComparison as PriceComparisonData } from '../services/priceStreamService';
+import { telegramAlertService } from '../services/telegramService';
 import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 import axios from 'axios';
 
@@ -102,6 +103,11 @@ const PriceComparison: React.FC = () => {
           console.log('Price updates received:', comparisons.length, 'comparisons');
           setPriceComparisons(comparisons);
           setIsLoading(false);
+          
+          // Check and send Telegram alerts for price differences > 1%
+          telegramAlertService.checkAndAlert(comparisons).catch(err => 
+            console.error('Telegram alert error:', err)
+          );
         });
 
         // Ensure loading state is cleared after a timeout
