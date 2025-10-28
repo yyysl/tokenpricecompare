@@ -173,10 +173,10 @@ const PriceComparison: React.FC = () => {
 
   // Separate comparisons: those with >threshold diff and others
   const highDiffComparisons = priceComparisons.filter(
-    (c) => Math.abs(c.priceDiffPercent) > PINNED_THRESHOLD
+    (c) => Math.abs(c.priceDiffPercent) > pinnedThreshold
   );
   const normalComparisons = priceComparisons.filter(
-    (c) => Math.abs(c.priceDiffPercent) <= PINNED_THRESHOLD
+    (c) => Math.abs(c.priceDiffPercent) <= pinnedThreshold
   );
 
   // Sort high diff by duration (longest first), then by diff percentage
@@ -216,17 +216,17 @@ const PriceComparison: React.FC = () => {
         <div className="mb-4">
           <h2 className="text-xl font-bold text-orange-900 flex items-center gap-2">
             <span>🔥</span>
-            顶置：价差超过{PINNED_THRESHOLD}%的交易对
+            顶置：价差超过{pinnedThreshold}%的交易对
           </h2>
           <div className="text-sm text-orange-700 mt-1">
-            以下交易对价差超过{PINNED_THRESHOLD}%，已按持续时间排序
+            以下交易对价差超过{pinnedThreshold}%，已按持续时间排序
           </div>
         </div>
         
         {sortedHighDiff.length === 0 ? (
           <div className="py-6 text-center text-gray-600 bg-white rounded-lg border border-gray-200">
-            <div className="text-lg font-medium mb-1">当前没有价差超过{PINNED_THRESHOLD}%的交易对</div>
-            <div className="text-sm text-gray-500">当有交易对价差超过{PINNED_THRESHOLD}%时，将自动显示在此区域</div>
+            <div className="text-lg font-medium mb-1">当前没有价差超过{pinnedThreshold}%的交易对</div>
+            <div className="text-sm text-gray-500">当有交易对价差超过{pinnedThreshold}%时，将自动显示在此区域</div>
           </div>
         ) : (
           <div className="overflow-x-auto">
