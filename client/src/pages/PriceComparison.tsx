@@ -55,7 +55,7 @@ const PriceComparison: React.FC = () => {
       const absDiffPercent = Math.abs(comparison.priceDiffPercent);
       const symbol = comparison.symbol;
       
-      if (absDiffPercent > PINNED_THRESHOLD) {
+      if (absDiffPercent > pinnedThreshold) {
         // If already tracking, keep the timestamp; otherwise, start tracking
         if (tracker[symbol] === null || tracker[symbol] === undefined) {
           tracker[symbol] = now;
