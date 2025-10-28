@@ -32,35 +32,54 @@
 
 ## 步骤 4: 获取群组 Chat ID
 
-有几种方法可以获取群组 Chat ID：
+有几种方法可以获取群组 Chat ID（推荐使用方法 2，最简单）：
 
-### 方法 1: 使用 @userinfobot（最简单）
+### 方法 1: 使用 API 查询（推荐，最简单！）⭐
 
-1. 在 Telegram 中搜索 `@userinfobot`
-2. 将 `@userinfobot` 添加到你的群组
-3. 在群组中发送任意消息或 `/start`
-4. `@userinfobot` 会回复群组信息，其中包含 `Chat ID`
-5. Chat ID 通常是负数，格式类似：`-1001234567890`
-6. **保存这个 Chat ID**
+这是最简单可靠的方法，不需要任何其他 bot：
 
-### 方法 2: 使用 API 查询（如果没有 userinfobot）
-
-1. 在群组中发送任意消息
-2. 访问以下 URL（将 `<YOUR_BOT_TOKEN>` 替换为你的 bot token）：
+1. **确保你的告警 bot 已经添加到群组中**
+2. 在群组中发送任意消息（可以是 `/start` 或任何文字）
+3. 在浏览器中访问以下 URL（将 `<YOUR_BOT_TOKEN>` 替换为你在 BotFather 获得的 token）：
    ```
    https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
    ```
-3. 在返回的 JSON 中查找 `"chat":{"id":-1001234567890}`
-4. 这个数字就是你的群组 Chat ID
-
-### 方法 3: 使用 getUpdates 命令
-
-1. 在浏览器中访问：
+   
+   例如，如果你的 token 是 `123456789:ABCdefGHIjklMNOpqrsTUVwxyz`，访问：
    ```
-   https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
+   https://api.telegram.org/bot123456789:ABCdefGHIjklMNOpqrsTUVwxyz/getUpdates
    ```
-2. 如果没有消息，在群组中发送一条消息，然后刷新页面
-3. 查找返回的 JSON 中的 `"chat":{"id"` 字段
+
+4. 你会看到一个 JSON 响应，查找包含 `"chat"` 的部分，找到 `"id"` 字段
+   - 群组的 ID 通常是负数，格式类似：`-1001234567890`
+   - 私聊的 ID 是正数：`123456789`
+
+5. **保存这个 Chat ID**
+
+**提示**：如果返回的 JSON 是空的 `{"ok":true,"result":[]}`，先在群组中发送一条消息，然后刷新浏览器页面。
+
+### 方法 2: 使用其他信息 bot（备选）
+
+如果方法 1 不行，可以尝试这些类似的 bot（但可能不稳定）：
+- `@userinfobot` - 可能已经被删除或重命名
+- `@RawDataBot` - 另一个信息 bot
+- `@getidsbot` - 获取 ID 的 bot
+
+使用步骤：
+1. 搜索并添加其中一个 bot 到群组
+2. 在群组中发送 `/start` 或任意消息
+3. Bot 会回复群组信息，包含 Chat ID
+
+### 方法 3: 使用 curl 命令（适合开发者）
+
+如果你熟悉命令行：
+
+```bash
+# 替换 <YOUR_BOT_TOKEN>
+curl "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates"
+```
+
+在群组发送消息后运行此命令，在返回的 JSON 中查找 `"chat":{"id"`。
 
 ## 步骤 5: 配置 Cloudflare Workers
 
