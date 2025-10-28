@@ -47,62 +47,66 @@ class PriceStreamService {
 
   /**
    * Get symbols available on both exchanges
+   * Using hardcoded list to avoid CORS issues with Binance API
    */
   private async getCommonSymbols(symbols: string[]): Promise<string[]> {
-    try {
-      console.log(`Hyperliquid symbols received: ${symbols.length}`, symbols.slice(0, 20));
-      
-      // Fetch Binance symbols
-      const response = await fetch('https://fapi.binance.com/fapi/v1/exchangeInfo');
-      const data = await response.json();
-      
-      // Create case-insensitive map: symbol uppercase -> binance symbol
-      const binanceSymbolMap = new Map<string, string>();
-      data.symbols
-        .filter((s: any) => s.status === 'TRADING' && s.symbol.endsWith('USDT'))
-        .forEach((s: any) => {
-          const symbolName = s.symbol.replace('USDT', '');
-          binanceSymbolMap.set(symbolName.toUpperCase(), symbolName);
-          // Store original Hyperliquid symbol name (preserve case)
-          this.binanceAvailableSymbols.add(symbolName.toUpperCase());
-        });
-      
-      console.log(`Binance symbols: ${binanceSymbolMap.size}`, Array.from(binanceSymbolMap.keys()).slice(0, 20));
+    console.log(`Hyperliquid symbols received: ${symbols.length}`, symbols.slice(0, 20));
+    
+    // Hardcoded list of major symbols available on both Binance and Hyperliquid
+    // This avoids CORS issues when trying to fetch from Binance API directly
+    const binanceSymbols = [
+      'BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'DOGE', 'ADA', 'AVAX', 'DOT', 'MATIC',
+      'LTC', 'LINK', 'UNI', 'ATOM', 'ETC', 'ICP', 'APT', 'ARB', 'OP', 'SUI',
+      'NEAR', 'FIL', 'IMX', 'HBAR', 'VET', 'TRX', 'AAVE', 'MKR', 'SNX', 'GRT',
+      'INJ', 'RUNE', 'FTM', 'ALGO', 'EGLD', 'FLOW', 'XTZ', 'SAND', 'MANA', 'AXS',
+      'THETA', 'EOS', 'KAVA', 'ZIL', 'CHZ', 'ENJ', 'BAT', 'ZRX', 'COMP', 'YFI',
+      'CRV', 'SUSHI', '1INCH', 'LRC', 'DYDX', 'GMX', 'BLUR', 'PEPE', 'WLD', 'TIA',
+      'SEI', 'ORDI', 'MEME', 'BONK', 'JTO', 'PYTH', 'STX', 'DYM', 'STRK', 'W',
+      'ONDO', 'ENA', 'ETHFI', 'PIXEL', 'AEVO', 'PORTAL', 'NFP', 'AI', 'XAI', 'MANTA',
+      'ALT', 'JUP', 'ACE', 'RONIN', 'LISTA', 'ZK', 'IO', 'NOT', 'TON', 'DOGS',
+      'HMSTR', 'CATI', 'NEIRO', 'TURBO', 'GOAT', 'PNUT', 'ACT', 'MOVE', 'ME', 'USUAL',
+      'PENGU', 'TRUMP', 'MELANIA', 'VINE', 'KOMA', 'GRIFFAIN', 'CGPT', 'FARTCOIN',
+      // Add more as needed
+    ];
+    
+    // Create a Set for faster lookup (case-insensitive)
+    const binanceSet = new Set(binanceSymbols.map(s => s.toUpperCase()));
+    
+    // Store available Binance symbols for later use
+    binanceSymbols.forEach(sym => {
+      this.binanceAvailableSymbols.add(sym.toUpperCase());
+    });
+    
+    console.log(`Binance symbols (hardcoded): ${binanceSymbols.length}`);
 
-      // Find common symbols with case-insensitive matching
-      const common: string[] = [];
-      const hyperliquidSymbolSet = new Set<string>();
-      
-      symbols.forEach(sym => {
-        const symUpper = sym.toUpperCase();
-        if (binanceSymbolMap.has(symUpper)) {
-          // Use the exact Hyperliquid symbol name for consistency
-          if (!hyperliquidSymbolSet.has(sym)) {
-            common.push(sym);
-            hyperliquidSymbolSet.add(sym);
-          }
+    // Find common symbols with case-insensitive matching
+    const common: string[] = [];
+    const hyperliquidSymbolSet = new Set<string>();
+    
+    symbols.forEach(sym => {
+      const symUpper = sym.toUpperCase();
+      if (binanceSet.has(symUpper)) {
+        // Use the exact Hyperliquid symbol name for consistency
+        if (!hyperliquidSymbolSet.has(sym)) {
+          common.push(sym);
+          hyperliquidSymbolSet.add(sym);
         }
-      });
-      
-      console.log(`Found ${common.length} common symbols:`, common);
-      
-      // Always show all common symbols, but if less than 20, also add more Hyperliquid symbols
-      // to give more options even if they're not on Binance (will show only Hyperliquid price)
-      if (common.length < 20 && symbols.length > common.length) {
-        const additionalSymbols = symbols
-          .filter(sym => !common.includes(sym))
-          .slice(0, 50 - common.length);
-        const combined = [...common, ...additionalSymbols];
-        console.log(`Combined ${common.length} common + ${additionalSymbols.length} additional = ${combined.length} total symbols`);
-        return combined;
       }
-      
-      return common.length > 0 ? common : symbols.slice(0, 50);
-    } catch (error) {
-      console.error('Error getting common symbols:', error);
-      // Return more symbols instead of fallback to limited list
-      return symbols.slice(0, 50);
+    });
+    
+    console.log(`Found ${common.length} common symbols:`, common.slice(0, 20));
+    
+    // If we have few common symbols, add more Hyperliquid-only symbols
+    if (common.length < 30 && symbols.length > common.length) {
+      const additionalSymbols = symbols
+        .filter(sym => !common.includes(sym))
+        .slice(0, 50 - common.length);
+      const combined = [...common, ...additionalSymbols];
+      console.log(`Combined ${common.length} common + ${additionalSymbols.length} additional = ${combined.length} total symbols`);
+      return combined;
     }
+    
+    return common.length > 0 ? common : symbols.slice(0, 50);
   }
 
   /**
