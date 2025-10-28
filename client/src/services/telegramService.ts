@@ -12,8 +12,18 @@ class TelegramAlertService {
   private apiEndpoint: string;
 
   constructor() {
-    // Use environment variable or default to local server
-    this.apiEndpoint = process.env.REACT_APP_TELEGRAM_API_URL || 'http://localhost:3001/api/price-alert';
+    // Auto-detect API endpoint based on environment
+    if (process.env.REACT_APP_TELEGRAM_API_URL) {
+      this.apiEndpoint = process.env.REACT_APP_TELEGRAM_API_URL;
+    } else if (typeof window !== 'undefined' && 
+               window.location.hostname !== 'localhost' && 
+               window.location.hostname !== '127.0.0.1') {
+      // Production environment
+      this.apiEndpoint = 'https://telegram-alert-service.352848845.workers.dev/api/price-alert';
+    } else {
+      // Local development
+      this.apiEndpoint = 'http://localhost:3001/api/price-alert';
+    }
     
     // Load saved threshold from localStorage
     const savedThreshold = localStorage.getItem('alertThreshold');

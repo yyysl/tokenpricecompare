@@ -8,7 +8,21 @@ const Settings: React.FC = () => {
   const [saveMessage, setSaveMessage] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_URL = process.env.REACT_APP_TELEGRAM_API_URL?.replace('/api/price-alert', '') || 'http://localhost:3001';
+  // Auto-detect API URL based on environment
+  const getApiUrl = () => {
+    // Priority 1: Environment variable
+    if (process.env.REACT_APP_TELEGRAM_API_URL) {
+      return process.env.REACT_APP_TELEGRAM_API_URL.replace('/api/price-alert', '');
+    }
+    // Priority 2: Production environment (not localhost)
+    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      return 'https://telegram-alert-service.352848845.workers.dev';
+    }
+    // Priority 3: Local development
+    return 'http://localhost:3001';
+  };
+  
+  const API_URL = getApiUrl();
 
   // Load saved threshold from backend on mount
   useEffect(() => {
