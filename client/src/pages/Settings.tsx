@@ -6,18 +6,41 @@ const Settings: React.FC = () => {
   const [savedThreshold, setSavedThreshold] = useState<string>('1.0');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load saved threshold on mount
+  const API_URL = process.env.REACT_APP_TELEGRAM_API_URL?.replace('/api/price-alert', '') || 'http://localhost:3001';
+
+  // Load saved threshold from backend on mount
   useEffect(() => {
-    const saved = localStorage.getItem('alertThreshold');
-    if (saved) {
-      const value = parseFloat(saved);
-      setThreshold(value.toString());
-      setSavedThreshold(value.toString());
-    }
-  }, []);
+    const loadThreshold = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/threshold`);
+        const data = await response.json();
+        const value = data.threshold || 1.0;
+        setThreshold(value.toString());
+        setSavedThreshold(value.toString());
+        
+        // Also save to localStorage for backward compatibility
+        localStorage.setItem('alertThreshold', value.toString());
+        telegramAlertService.setAlertThreshold(value);
+      } catch (error) {
+        console.error('Failed to load threshold:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem('alertThreshold');
+        if (saved) {
+          const value = parseFloat(saved);
+          setThreshold(value.toString());
+          setSavedThreshold(value.toString());
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadThreshold();
+  }, [API_URL]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const numValue = parseFloat(threshold);
     
     // Validate
@@ -29,26 +52,58 @@ const Settings: React.FC = () => {
 
     setIsSaving(true);
     
-    // Save to localStorage
-    localStorage.setItem('alertThreshold', numValue.toString());
-    
-    // Update the telegram service threshold
-    telegramAlertService.setAlertThreshold(numValue);
-    
-    setSavedThreshold(numValue.toString());
-    setSaveMessage('✅ 保存成功！新阈值已生效');
-    setIsSaving(false);
-    
-    setTimeout(() => setSaveMessage(''), 3000);
+    try {
+      // Save to backend
+      const response = await fetch(`${API_URL}/api/threshold`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ threshold: numValue }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save threshold');
+      }
+      
+      // Also save to localStorage for backward compatibility
+      localStorage.setItem('alertThreshold', numValue.toString());
+      
+      // Update the telegram service threshold
+      telegramAlertService.setAlertThreshold(numValue);
+      
+      setSavedThreshold(numValue.toString());
+      setSaveMessage('✅ 保存成功！新阈值已生效（已保存到服务器）');
+    } catch (error) {
+      console.error('Failed to save threshold:', error);
+      setSaveMessage('❌ 保存失败，请检查网络连接');
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
   };
 
-  const handleReset = () => {
-    setThreshold('1.0');
-    setSavedThreshold('1.0');
-    localStorage.setItem('alertThreshold', '1.0');
-    telegramAlertService.setAlertThreshold(1.0);
-    setSaveMessage('✅ 已重置为默认值 1%');
-    setTimeout(() => setSaveMessage(''), 3000);
+  const handleReset = async () => {
+    try {
+      // Save to backend
+      await fetch(`${API_URL}/api/threshold`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ threshold: 1.0 }),
+      });
+      
+      setThreshold('1.0');
+      setSavedThreshold('1.0');
+      localStorage.setItem('alertThreshold', '1.0');
+      telegramAlertService.setAlertThreshold(1.0);
+      setSaveMessage('✅ 已重置为默认值 1%（已保存到服务器）');
+    } catch (error) {
+      setSaveMessage('❌ 重置失败');
+    } finally {
+      setTimeout(() => setSaveMessage(''), 3000);
+    }
   };
 
   const presetValues = [
@@ -58,6 +113,19 @@ const Settings: React.FC = () => {
     { label: '3%', value: '3.0' },
     { label: '5%', value: '5.0' },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">加载设置中...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -174,7 +242,8 @@ const Settings: React.FC = () => {
             <li>• 建议阈值范围：0.5% - 5%</li>
             <li>• 阈值越小，告警越频繁</li>
             <li>• 每个交易对每 5 分钟最多发送一次告警（防止刷屏）</li>
-            <li>• 设置会保存在浏览器本地，不会丢失</li>
+            <li>• <strong>设置会保存到服务器，任何设备都可以访问</strong></li>
+            <li>• 浏览器关闭后设置不会丢失</li>
           </ul>
         </div>
       </div>

@@ -2,6 +2,15 @@ name = "telegram-alert-service"
 main = "src/index.js"
 compatibility_date = "2024-01-01"
 
+# KV namespace for storing alert threshold
+[[kv_namespaces]]
+binding = "ALERT_SETTINGS"
+id = "842e3b955ef14101bc967ffdef5cb03c"
+
+# Cron trigger - runs every 1 minute
+[triggers]
+crons = ["* * * * *"]
+
 # 环境变量（通过 wrangler secret put 设置，或在 .dev.vars 中设置）
 # TELEGRAM_BOT_TOKEN - 通过 wrangler secret put TELEGRAM_BOT_TOKEN 设置
 # TELEGRAM_CHAT_ID - 通过 wrangler secret put TELEGRAM_CHAT_ID 设置

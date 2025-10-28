@@ -14,7 +14,7 @@ export default {
       return new Response(null, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         },
       });
@@ -34,6 +34,75 @@ export default {
           },
         }
       );
+    }
+
+    // Get alert threshold
+    if (path === '/api/threshold' && request.method === 'GET') {
+      try {
+        const threshold = await env.ALERT_SETTINGS.get('threshold');
+        return new Response(
+          JSON.stringify({ threshold: threshold ? parseFloat(threshold) : 1.0 }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ threshold: 1.0 }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      }
+    }
+
+    // Set alert threshold
+    if (path === '/api/threshold' && request.method === 'POST') {
+      try {
+        const { threshold } = await request.json();
+        
+        if (typeof threshold !== 'number' || threshold <= 0 || threshold > 100) {
+          return new Response(
+            JSON.stringify({ error: 'Invalid threshold value' }),
+            {
+              status: 400,
+              headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+              },
+            }
+          );
+        }
+
+        await env.ALERT_SETTINGS.put('threshold', threshold.toString());
+        
+        return new Response(
+          JSON.stringify({ success: true, threshold }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ error: 'Failed to save threshold' }),
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      }
     }
 
     // Price alert endpoint
