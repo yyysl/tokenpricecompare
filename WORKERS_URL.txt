@@ -1,0 +1,18 @@
+Cloudflare Workers URL:
+https://telegram-alert-service.352848845.workers.dev
+
+API Endpoint for frontend:
+https://telegram-alert-service.352848845.workers.dev/api/price-alert
+
+Health Check:
+https://telegram-alert-service.352848845.workers.dev/health
+
+配置步骤：
+1. 访问 Cloudflare Pages Dashboard
+2. 选择你的项目 (tokenpricecompare)
+3. 进入 Settings → Environment variables
+4. 添加变量：
+   - 名称：REACT_APP_TELEGRAM_API_URL
+   - 值：https://telegram-alert-service.352848845.workers.dev/api/price-alert
+5. 保存后重新部署前端
+
