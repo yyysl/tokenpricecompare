@@ -22,13 +22,14 @@ jobs:
       
       - name: Install dependencies
         working-directory: ./client
-        run: npm ci
+        run: npm ci --legacy-peer-deps
       
       - name: Build
         working-directory: ./client
         run: npm run build
         env:
           CI: false
+          NODE_OPTIONS: --max_old_space_size=4096
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1

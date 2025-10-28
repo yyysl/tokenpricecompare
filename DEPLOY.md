@@ -13,9 +13,9 @@
    - 点击 "Begin setup"
 
 3. **配置构建设置**
-   - **Project name**: `trade-on-hyper`
+   - **Project name**: `trade-on-hyper`（或 `tokenpricecompare`）
    - **Production branch**: `main`
-   - **Build command**: `cd client && npm install && npm run build`
+   - **Build command**: `cd client && npm install --legacy-peer-deps && npm run build`
    - **Build output directory**: `client/build`
    - **Root directory (advanced)**: `/` (留空)
 
