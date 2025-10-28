@@ -19,6 +19,28 @@ const PriceComparison: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [pinnedThreshold, setPinnedThreshold] = useState<number>(1.0);
 
+  // API URL for backend
+  const API_URL = process.env.REACT_APP_TELEGRAM_API_URL?.replace('/api/price-alert', '') || 'http://localhost:3001';
+
+  // Load threshold from backend on mount
+  useEffect(() => {
+    const loadThreshold = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/threshold`);
+        const data = await response.json();
+        const value = data.threshold || 1.0;
+        setPinnedThreshold(value);
+        telegramAlertService.setAlertThreshold(value);
+      } catch (error) {
+        console.error('Failed to load threshold:', error);
+        // Fallback to telegramService's current threshold
+        setPinnedThreshold(telegramAlertService.getAlertThreshold());
+      }
+    };
+    
+    loadThreshold();
+  }, [API_URL]);
+
   // Load volume data from Hyperliquid
   const loadVolumeData = useCallback(async () => {
     try {
