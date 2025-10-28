@@ -10,8 +10,6 @@ interface DurationTracker {
   [symbol: string]: number | null; // Timestamp when diff exceeded 0.5%, or null if below
 }
 
-const PINNED_THRESHOLD = 0.5; // Threshold for pinned section (in percentage)
-
 const PriceComparison: React.FC = () => {
   const [priceComparisons, setPriceComparisons] = useState<PriceComparisonData[]>([]);
   const [commonSymbols, setCommonSymbols] = useState<string[]>([]);
@@ -19,6 +17,7 @@ const PriceComparison: React.FC = () => {
   const [volumeMap, setVolumeMap] = useState<Record<string, number>>({});
   const durationTrackerRef = useRef<DurationTracker>({});
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [pinnedThreshold, setPinnedThreshold] = useState<number>(1.0);
 
   // Load volume data from Hyperliquid
   const loadVolumeData = useCallback(async () => {
