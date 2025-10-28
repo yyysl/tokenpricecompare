@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChartBarIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
@@ -8,6 +8,7 @@ const Sidebar: React.FC = () => {
   const navigation = [
     { name: '价格对比', href: '/price-comparison', icon: ChartBarIcon },
     { name: '资金费率', href: '/funding', icon: ChartBarIcon },
+    { name: '设置', href: '/settings', icon: Cog6ToothIcon },
   ];
 
   return (

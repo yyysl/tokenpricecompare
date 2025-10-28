@@ -14,6 +14,29 @@ class TelegramAlertService {
   constructor() {
     // Use environment variable or default to local server
     this.apiEndpoint = process.env.REACT_APP_TELEGRAM_API_URL || 'http://localhost:3001/api/price-alert';
+    
+    // Load saved threshold from localStorage
+    const savedThreshold = localStorage.getItem('alertThreshold');
+    if (savedThreshold) {
+      this.alertThreshold = parseFloat(savedThreshold);
+    }
+  }
+
+  /**
+   * Set alert threshold dynamically
+   */
+  setAlertThreshold(threshold: number): void {
+    if (threshold > 0 && threshold <= 100) {
+      this.alertThreshold = threshold;
+      console.log(`Telegram alert threshold updated to ${threshold}%`);
+    }
+  }
+
+  /**
+   * Get current alert threshold
+   */
+  getAlertThreshold(): number {
+    return this.alertThreshold;
   }
 
   /**
