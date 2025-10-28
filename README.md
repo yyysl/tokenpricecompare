@@ -58,7 +58,26 @@
 
 ## 📦 部署
 
-### 部署到 Cloudflare Pages
+### 后端部署到 Cloudflare Workers
+
+后端可以部署到 Cloudflare Workers（Serverless）或其他平台。
+
+**Cloudflare Workers 部署**（推荐，免费且快速）：
+- 查看 [CLOUDFLARE_DEPLOY.md](./CLOUDFLARE_DEPLOY.md) 了解详细步骤
+- 快速部署：
+  ```bash
+  cd workers
+  npm install
+  wrangler secret put TELEGRAM_BOT_TOKEN
+  wrangler secret put TELEGRAM_CHAT_ID
+  wrangler deploy
+  ```
+
+**其他平台**（Railway, Render, Heroku 等）：
+- 使用 `server/` 目录中的 Express 服务器
+- 查看 [SETUP.md](./SETUP.md) 了解详细说明
+
+### 前端部署到 Cloudflare Pages
 
 详细部署说明请查看 [DEPLOY.md](./DEPLOY.md)
 

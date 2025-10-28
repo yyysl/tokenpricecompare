@@ -1,0 +1,7 @@
+# 本地开发环境变量
+# 复制此文件为 .dev.vars 并填入你的配置
+# .dev.vars 文件不会被提交到 Git
+
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+TELEGRAM_CHAT_ID=your_chat_id_here
+
