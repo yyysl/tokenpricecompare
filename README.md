@@ -152,3 +152,4 @@ MIT License
 ---
 
 **让交易更简单，让投资更智能！** 📈🚀
+# tokenpricecompare
