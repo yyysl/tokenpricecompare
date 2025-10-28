@@ -15,7 +15,9 @@
 3. **配置构建设置**
    - **Project name**: `trade-on-hyper`（或 `tokenpricecompare`）
    - **Production branch**: `main`
-   - **Build command**: `cd client && npm install --legacy-peer-deps && npm run build`
+   - **Build command**: `cd client && npm install --legacy-peer-deps && DISABLE_ESLINT_PLUGIN=true npm run build`
+   - **环境变量** (可选，在 Build environment variables 中添加):
+     - `DISABLE_ESLINT_PLUGIN`: `true` (如果不设置，可以在构建命令中设置)
    - **Build output directory**: `client/build`
    - **Root directory (advanced)**: `/` (留空)
 
