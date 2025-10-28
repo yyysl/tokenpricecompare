@@ -55,6 +55,8 @@ class TelegramAlertService {
   async checkAndAlert(priceComparisons: PriceComparison[]): Promise<void> {
     const now = Date.now();
 
+    console.log(`🔔 Checking ${priceComparisons.length} price comparisons for alerts (threshold: ${this.alertThreshold}%)`);
+
     // Filter comparisons that need alerting
     const alerts: Array<{
       comparison: PriceComparison;
@@ -82,6 +84,7 @@ class TelegramAlertService {
         // Start tracking duration if not already tracking
         if (this.durationTrackers[symbolKey] === null || this.durationTrackers[symbolKey] === undefined) {
           this.durationTrackers[symbolKey] = now;
+          console.log(`⏱️ Started tracking ${symbol} with ${absDiffPercent.toFixed(4)}% diff`);
         }
 
         const durationStart = this.durationTrackers[symbolKey]!;
@@ -92,11 +95,15 @@ class TelegramAlertService {
         const timeSinceLastAlert = now - lastAlertTime;
 
         if (timeSinceLastAlert >= this.alertCooldown) {
+          console.log(`🚨 Alert triggered for ${symbol}: ${absDiffPercent.toFixed(4)}% diff, duration: ${(durationMs / 1000).toFixed(0)}s`);
           alerts.push({
             comparison: comparison as PriceComparison & { durationMs: number },
             durationMs,
           });
           this.lastAlertTimes.set(symbolKey, now);
+        } else {
+          const cooldownRemaining = Math.ceil((this.alertCooldown - timeSinceLastAlert) / 1000);
+          console.log(`⏳ ${symbol} in cooldown, ${cooldownRemaining}s remaining`);
         }
       } else {
         // Price diff below threshold, reset duration tracker
@@ -109,7 +116,10 @@ class TelegramAlertService {
 
     // Send alerts to backend
     if (alerts.length > 0) {
+      console.log(`📤 Sending ${alerts.length} alerts to Telegram...`);
       await this.sendAlerts(alerts);
+    } else {
+      console.log(`✅ No alerts to send (checked ${priceComparisons.length} comparisons)`);
     }
   }
 
@@ -124,6 +134,9 @@ class TelegramAlertService {
         durationMs,
       }));
 
+      console.log(`📡 Sending request to: ${this.apiEndpoint}`);
+      console.log(`📊 Alert data:`, alertData);
+      
       const response = await fetch(this.apiEndpoint, {
         method: 'POST',
         headers: {
@@ -135,7 +148,12 @@ class TelegramAlertService {
       });
 
       if (!response.ok) {
-        console.error('Failed to send Telegram alerts:', response.statusText);
+        console.error('❌ Failed to send Telegram alerts:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+      } else {
+        const result = await response.json();
+        console.log('✅ Telegram alert sent successfully:', result);
       }
     } catch (error) {
       // Silent fail - don't block the UI if Telegram service is unavailable
