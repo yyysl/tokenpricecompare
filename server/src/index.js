@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
-const axios = require('axios');
+const cors = require('cors');
 const telegramService = require('./telegramService');
-const cron = require('node-cron');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Enable CORS for frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
 
 // Health check endpoint

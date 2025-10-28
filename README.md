@@ -24,6 +24,38 @@
 - **WebSocket**: 实时价格流
 - **React Router**: 单页应用路由
 
+## Telegram 告警
+
+项目集成了 Telegram 告警功能，当价差超过 1% 时会自动推送通知。
+
+### 设置步骤
+
+1. **创建 Telegram Bot**
+   - 在 Telegram 中搜索 `@BotFather`
+   - 发送 `/newbot` 创建 bot
+   - 保存返回的 bot token
+
+2. **获取 Chat ID**
+   - 将 bot 添加到群组
+   - 使用 `@userinfobot` 获取群组 Chat ID
+
+3. **配置后端服务**
+   ```bash
+   cd server
+   cp .env.example .env
+   # 编辑 .env 文件，填入 TELEGRAM_BOT_TOKEN 和 TELEGRAM_CHAT_ID
+   npm install
+   npm start
+   ```
+
+4. **配置前端（如果需要）**
+   - 如果后端部署在不同服务器，在 `client/.env.local` 中设置：
+     ```
+     REACT_APP_TELEGRAM_API_URL=https://your-backend-url/api/price-alert
+     ```
+
+详细设置说明请参考 [TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md) 或 [SETUP.md](./SETUP.md)
+
 ## 📦 部署
 
 ### 部署到 Cloudflare Pages
